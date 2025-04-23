@@ -12,14 +12,17 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { FileSignatureValidator } from 'src/shared/files/validators/file-signature.validator';
+import { CloudinaryService } from './services/cloudinary.service';
 
 type File = Express.Multer.File;
 
 @Controller('files-upload')
 export class FilesUploadController {
+  constructor(private readonly cloudinaryService: CloudinaryService) {} // Inject CloudinaryService
+
   @Post('/single')
   @UseInterceptors(FileInterceptor('file'))
-  uploadFile(
+  async uploadFile(
     @UploadedFile(
       new ParseFilePipe({
         validators: [
@@ -46,14 +49,14 @@ export class FilesUploadController {
       }),
     )
     file: File,
-  ): File {
-    // this.awsS3.uploadSingleFile(file)
-    return file;
+  ): Promise<any> {
+    // Use CloudinaryService to upload single file
+    return this.cloudinaryService.uploadSingleFile(file);
   }
 
   @Post('/multiple')
   @UseInterceptors(FilesInterceptor('files', 3))
-  uploadFiles(
+  async uploadFiles(
     @UploadedFiles(
       new ParseFilePipe({
         validators: [
@@ -80,8 +83,8 @@ export class FilesUploadController {
       }),
     )
     files: File[],
-  ): string[] {
-    // this.awsS3.uploadMultipleFiles(files)
-    return files.map((file) => file.originalname);
+  ): Promise<any> {
+    // Use CloudinaryService to upload multiple files
+    return this.cloudinaryService.uploadMultipleFiles(files);
   }
 }
