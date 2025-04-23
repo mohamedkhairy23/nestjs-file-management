@@ -69,6 +69,7 @@ export class FilesUploadController {
           }),
 
           // 3) Custom validation
+          new FileSignatureValidator(),
         ],
         errorHttpStatusCode: HttpStatus.UNSUPPORTED_MEDIA_TYPE,
         exceptionFactory: (error: string) => {
