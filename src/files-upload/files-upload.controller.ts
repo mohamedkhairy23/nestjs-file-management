@@ -1,87 +1,47 @@
 import {
   Controller,
-  FileTypeValidator,
-  HttpStatus,
-  MaxFileSizeValidator,
-  ParseFilePipe,
   Post,
-  UnprocessableEntityException,
   UploadedFile,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { FileSignatureValidator } from 'src/shared/files/validators/file-signature.validator';
+import { createParseFilePipe } from 'src/shared/files/files-validation-factory';
+import { UploadS3Service } from './services/upload-s3.service';
+import { CloudinaryService } from './services/cloudinary.service';
 
 type File = Express.Multer.File;
 
 @Controller('files-upload')
 export class FilesUploadController {
+  constructor(
+    private readonly awsS3: UploadS3Service,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
+
   @Post('/single')
   @UseInterceptors(FileInterceptor('file'))
-  uploadFile(
+  async uploadFile(
     @UploadedFile(
-      new ParseFilePipe({
-        validators: [
-          // 1) Validate file size
-          new MaxFileSizeValidator({
-            maxSize: 2 * 1024 * 1024, // 2MB
-            message: (maxSize) =>
-              `File is too big. Max file size is ${maxSize} bytes`,
-          }),
-          // 2) Validate file type (extensions)
-          new FileTypeValidator({
-            fileType: /\.?(jpg|jpeg|png|webp)$/i,
-          }),
-
-          // 3) Custom validation
-          new FileSignatureValidator(),
-        ],
-        errorHttpStatusCode: HttpStatus.UNSUPPORTED_MEDIA_TYPE,
-        exceptionFactory: (error: string) => {
-          console.log('error', error);
-          throw new UnprocessableEntityException(error);
-        },
-        fileIsRequired: true,
-      }),
+      createParseFilePipe(2 * 1024 * 1024, /\.?(jpg|jpeg|png|webp)$/i),
     )
     file: File,
-  ): File {
-    // this.awsS3.uploadSingleFile(file)
-    return file;
+  ): Promise<any> {
+    // return file;
+    // return this.awsS3.uploadSingleFile(file);
+    return this.cloudinaryService.uploadSingleFile(file);
   }
 
   @Post('/multiple')
   @UseInterceptors(FilesInterceptor('files', 3))
-  uploadFiles(
+  async uploadFiles(
     @UploadedFiles(
-      new ParseFilePipe({
-        validators: [
-          // 1) Validate file size
-          new MaxFileSizeValidator({
-            maxSize: 2 * 1024 * 1024, // 2MB
-            message: (maxSize) =>
-              `File is too big. Max file size is ${maxSize} bytes`,
-          }),
-          // 2) Validate file type (extensions)
-          new FileTypeValidator({
-            fileType: /\.?(jpg|jpeg|png|webp)$/i,
-          }),
-
-          // 3) Custom validation
-          new FileSignatureValidator(),
-        ],
-        errorHttpStatusCode: HttpStatus.UNSUPPORTED_MEDIA_TYPE,
-        exceptionFactory: (error: string) => {
-          console.log('error', error);
-          throw new UnprocessableEntityException(error);
-        },
-        fileIsRequired: true,
-      }),
+      createParseFilePipe(2 * 1024 * 1024, /\.?(jpg|jpeg|png|webp)$/i),
     )
     files: File[],
-  ): string[] {
-    // this.awsS3.uploadMultipleFiles(files)
-    return files.map((file) => file.originalname);
+  ) {
+    // return files.map((file) => file.originalname);
+    // return this.awsS3.uploadMultipleFiles(files);
+    return this.cloudinaryService.uploadMultipleFiles(files);
   }
 }
