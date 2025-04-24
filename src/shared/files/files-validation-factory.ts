@@ -7,28 +7,34 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { FileSignatureValidator } from './validators/file-signature.validator';
+import { FileType } from './types/file.types';
+import { createFileTypeRegex } from './utils/file.util';
 
 const createFileValidators = (
   maxSize: number,
-  fileType: RegExp | string,
-): FileValidator[] => [
-  // 1) Validate file size
-  new MaxFileSizeValidator({
-    maxSize: maxSize,
-    message: (maxSize) => `File is too big. Max file size is ${maxSize} bytes`,
-  }),
-  // 2) Validate file type (extensions)
-  new FileTypeValidator({
-    fileType: fileType,
-  }),
+  fileType: FileType[],
+): FileValidator[] => {
+  const fileTypeRegex = createFileTypeRegex(fileType);
+  return [
+    // 1) Validate file size
+    new MaxFileSizeValidator({
+      maxSize: maxSize,
+      message: (maxSize) =>
+        `File is too big. Max file size is ${maxSize} bytes`,
+    }),
+    // 2) Validate file type (extensions)
+    new FileTypeValidator({
+      fileType: fileTypeRegex,
+    }),
 
-  // 3) Custom validation
-  new FileSignatureValidator(),
-];
+    // 3) Custom validation
+    new FileSignatureValidator(),
+  ];
+};
 
 export const createParseFilePipe = (
   maxSize: number,
-  fileType: RegExp | string,
+  fileType: FileType[],
 ): ParseFilePipe =>
   new ParseFilePipe({
     validators: createFileValidators(maxSize, fileType),

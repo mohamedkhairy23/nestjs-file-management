@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Controller,
   Post,
   UploadedFile,
@@ -23,7 +24,7 @@ export class FilesUploadController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
     @UploadedFile(
-      createParseFilePipe(2 * 1024 * 1024, /\.?(jpg|jpeg|png|webp)$/i),
+      createParseFilePipe(2 * 1024 * 1024, ['jpeg', 'jpg', 'png', 'webp']),
     )
     file: File,
   ): Promise<any> {
@@ -33,13 +34,18 @@ export class FilesUploadController {
   }
 
   @Post('/multiple')
-  @UseInterceptors(FilesInterceptor('files', 3))
+  @UseInterceptors(FilesInterceptor('files'))
   async uploadFiles(
     @UploadedFiles(
-      createParseFilePipe(2 * 1024 * 1024, /\.?(jpg|jpeg|png|webp)$/i),
+      createParseFilePipe(2 * 1024 * 1024, ['jpeg', 'jpg', 'png', 'webp']),
     )
     files: File[],
   ) {
+    if (files.length > 3) {
+      throw new BadRequestException(
+        "Sorry, You can't upload more than 3 files.",
+      );
+    }
     // return files.map((file) => file.originalname);
     // return this.awsS3.uploadMultipleFiles(files);
     return this.cloudinaryService.uploadMultipleFiles(files);
