@@ -23,9 +23,7 @@ export class FilesUploadController {
   @Post('/single')
   @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
-    @UploadedFile(
-      createParseFilePipe(2 * 1024 * 1024, ['jpeg', 'jpg', 'png', 'webp']),
-    )
+    @UploadedFile(createParseFilePipe('2MB', ['jpeg', 'jpg', 'png', 'webp']))
     file: File,
   ): Promise<any> {
     // return file;
@@ -36,9 +34,7 @@ export class FilesUploadController {
   @Post('/multiple')
   @UseInterceptors(FilesInterceptor('files'))
   async uploadFiles(
-    @UploadedFiles(
-      createParseFilePipe(2 * 1024 * 1024, ['jpeg', 'jpg', 'png', 'webp']),
-    )
+    @UploadedFiles(createParseFilePipe('2MB', ['jpeg', 'jpg', 'png', 'webp']))
     files: File[],
   ) {
     if (files.length > 3) {

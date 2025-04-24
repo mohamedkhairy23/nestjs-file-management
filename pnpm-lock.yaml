@@ -29,6 +29,9 @@ importers:
       aws-sdk:
         specifier: ^2.1692.0
         version: 2.1692.0
+      bytes:
+        specifier: ^3.1.2
+        version: 3.1.2
       cloudinary:
         specifier: ^2.6.0
         version: 2.6.0
@@ -75,6 +78,9 @@ importers:
       '@swc/core':
         specifier: ^1.10.7
         version: 1.11.22
+      '@types/bytes':
+        specifier: ^3.1.5
+        version: 3.1.5
       '@types/express':
         specifier: ^5.0.0
         version: 5.0.1
@@ -1354,6 +1360,9 @@ packages:
 
   '@types/body-parser@1.19.5':
     resolution: {integrity: sha512-fB3Zu92ucau0iQ0JMCFQE7b/dv8Ot07NI3KaZIkIUNXq82k4eBAqUaneXfleGY9JWskeS9y+u0nXMyspcuQrCg==}
+
+  '@types/bytes@3.1.5':
+    resolution: {integrity: sha512-VgZkrJckypj85YxEsEavcMmmSOIzkUHqWmM4CCyia5dc54YwsXzJ5uT4fYxBQNEXx+oF1krlhgCbvfubXqZYsQ==}
 
   '@types/connect@3.4.38':
     resolution: {integrity: sha512-K6uROf1LD88uDQqJCktA4yzL1YYAK6NgfsI0v/mTgyPKWsX1CnJ0XPSDhViejru1GcRkLWb8RlzFYJRqGUbaug==}
@@ -5721,6 +5730,8 @@ snapshots:
     dependencies:
       '@types/connect': 3.4.38
       '@types/node': 22.14.1
+
+  '@types/bytes@3.1.5': {}
 
   '@types/connect@3.4.38':
     dependencies:
