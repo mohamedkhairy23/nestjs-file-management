@@ -10,6 +10,7 @@ import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { createParseFilePipe } from 'src/shared/files/files-validation-factory';
 import { UploadS3Service } from './services/upload-s3.service';
 import { CloudinaryService } from './services/cloudinary.service';
+import { MaxFileCount } from 'src/shared/files/constants/file-count.constants';
 
 type File = Express.Multer.File;
 
@@ -32,14 +33,15 @@ export class FilesUploadController {
   }
 
   @Post('/multiple')
+  // @UseInterceptors(FilesInterceptor('files',MaxFileCount.MY_IMAGES))
   @UseInterceptors(FilesInterceptor('files'))
   async uploadFiles(
     @UploadedFiles(createParseFilePipe('2MB', ['jpeg', 'jpg', 'png', 'webp']))
     files: File[],
   ) {
-    if (files.length > 3) {
+    if (files.length > MaxFileCount.MY_IMAGES) {
       throw new BadRequestException(
-        "Sorry, You can't upload more than 3 files.",
+        `Sorry, You can't upload more than ${MaxFileCount.MY_IMAGES} files.`,
       );
     }
     // return files.map((file) => file.originalname);
